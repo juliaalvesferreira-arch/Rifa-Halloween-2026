@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QR Code · Rifa Azul Logística</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --blue-25:#F4F8FE; --blue-50:#E9F2FD; --blue-100:#DAE9FB; --blue-200:#C2DAF7;
+  --blue-300:#9DC3EF; --blue-500:#3D87DA; --blue-600:#1E6AC4; --blue-700:#14529B;
+  --blue-800:#0E3B72; --blue-900:#0A2A52; --blue-950:#061B36;
+  --cyan-300:#8FD6F0; --cyan-400:#63C2E8;
+  --ink-600:#46617F; --white:#fff;
+  --font-display:'Poppins',sans-serif; --font-body:'Inter',sans-serif;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:var(--font-body); background:var(--blue-25);
+  color:#0B1D33; padding:24px;
+}
+
+/* ----- Controles (não saem na impressão) ----- */
+.controls{
+  max-width:620px;margin:0 auto 22px;background:var(--white);
+  border-radius:14px;padding:20px;box-shadow:0 10px 28px rgba(10,42,82,.10);
+  border-left:4px solid var(--blue-600);
+}
+.controls h1{font-family:var(--font-display);font-size:17px;margin:0 0 4px;color:var(--blue-900);}
+.controls p{font-size:13px;color:var(--ink-600);margin:0 0 14px;}
+.controls label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px;color:var(--blue-900);}
+.controls input{
+  width:100%;padding:11px 12px;border:1.5px solid var(--blue-200);
+  border-radius:8px;font-size:13.5px;font-family:var(--font-body);background:var(--blue-25);
+}
+.controls input:focus{outline:2px solid var(--blue-500);background:#fff;}
+.btn-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+button{
+  border:none;border-radius:99px;padding:11px 20px;font-family:var(--font-display);
+  font-weight:600;font-size:13.5px;cursor:pointer;
+}
+.b-primary{background:var(--blue-600);color:#fff;}
+.b-primary:hover{background:var(--blue-700);}
+.b-ghost{background:transparent;border:1.5px solid var(--blue-300);color:var(--blue-700);}
+.b-ghost:hover{background:var(--blue-50);}
+
+/* ----- Cartaz ----- */
+.poster{
+  max-width:620px;margin:0 auto;background:var(--white);
+  border-radius:22px;overflow:hidden;box-shadow:0 18px 44px rgba(10,42,82,.16);
+}
+.poster-head{
+  background:linear-gradient(135deg,var(--blue-950),var(--blue-700));
+  color:#fff;padding:30px 30px 26px;text-align:center;position:relative;
+}
+.poster-head::before{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 2px,transparent 2px 14px);
+}
+.eyebrow{font-size:12.5px;color:var(--cyan-300);letter-spacing:.06em;text-transform:uppercase;position:relative;}
+.poster-head h2{
+  font-family:var(--font-display);font-weight:800;font-size:34px;
+  margin:6px 0 4px;line-height:1.05;position:relative;
+}
+.sub{font-family:var(--font-display);font-weight:600;font-size:15px;color:var(--cyan-300);
+  letter-spacing:.08em;text-transform:uppercase;position:relative;}
+
+.poster-body{padding:28px 30px 32px;text-align:center;}
+.cta{font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--blue-900);margin:0 0 18px;}
+
+#qrcode{
+  display:inline-block;padding:16px;background:#fff;
+  border:2px solid var(--blue-100);border-radius:16px;line-height:0;
+}
+#qrcode img, #qrcode canvas{display:block;}
+
+.url{
+  font-size:12.5px;color:var(--ink-600);margin-top:14px;word-break:break-all;
+}
+
+.info-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:24px;text-align:left;
+}
+.info-box{background:var(--blue-50);border-radius:10px;padding:14px;}
+.info-box .t{
+  font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--blue-700);font-weight:700;margin-bottom:5px;
+}
+.info-box .v{font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--blue-900);}
+.info-box .s{font-size:12px;color:var(--ink-600);margin-top:3px;}
+
+.warn{
+  background:var(--blue-50);border-left:3px solid var(--blue-600);
+  border-radius:8px;padding:13px 15px;margin-top:16px;
+  font-size:12.5px;color:var(--blue-800);text-align:left;line-height:1.5;
+}
+.contact{
+  margin-top:14px;font-size:12.5px;color:var(--ink-600);
+  text-align:center;line-height:1.7;
+}
+.contact strong{color:var(--blue-900);}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .controls{display:none;}
+  .poster{box-shadow:none;max-width:100%;border-radius:0;}
+  @page{margin:12mm;}
+}
+</style>
+</head>
+<body>
+
+  <div class="controls">
+    <h1>Gerador de QR Code</h1>
+    <p>Confira o endereço abaixo e clique em gerar. Depois use "Imprimir" para o cartaz, ou clique com o botão direito no QR para salvar a imagem.</p>
+    <label for="urlInput">Endereço do site</label>
+    <input type="text" id="urlInput" value="https://juliaalvesferreira-arch.github.io/Rifa-Halloween-2026/" />
+    <div class="btn-row">
+      <button class="b-primary" id="btnGerar">Gerar QR Code</button>
+      <button class="b-ghost" id="btnBaixar">Baixar PNG</button>
+      <button class="b-ghost" id="btnImprimir">Imprimir cartaz</button>
+    </div>
+  </div>
+
+  <div class="poster" id="poster">
+    <div class="poster-head">
+      <div class="eyebrow">Sorteio aberto</div>
+      <h2>Rifa Azul Logística</h2>
+      <div class="sub">Halloween 2026</div>
+    </div>
+
+    <div class="poster-body">
+      <p class="cta">Aponte a câmera e escolha seu número</p>
+      <div id="qrcode"></div>
+      <div class="url" id="urlLabel"></div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="t">Valor por número</div>
+          <div class="v">R$ 15,00</div>
+          <div class="s">300 números disponíveis</div>
+        </div>
+        <div class="info-box">
+          <div class="t">PIX</div>
+          <div class="v">11957309916</div>
+          <div class="s">Julia Alves Ferreira</div>
+        </div>
+      </div>
+
+      <div class="warn">
+        <strong>O número só é aprovado após o pagamento.</strong> Faça o PIX e
+        envie o comprovante para a administradora.
+      </div>
+
+      <div class="contact">
+        <strong>Julia Alves Ferreira</strong><br/>
+        (11) 96376-8483 · julia.aferreira@voeazul.com.br
+      </div>
+    </div>
+  </div>
+
+<script>
+const urlInput = document.getElementById("urlInput");
+const urlLabel = document.getElementById("urlLabel");
+const qrBox = document.getElementById("qrcode");
+
+function gerar(){
+  const texto = urlInput.value.trim();
+  if(!texto){ alert("Informe o endereço do site."); return; }
+  qrBox.innerHTML = "";
+  new QRCode(qrBox, {
+    text: texto,
+    width: 260,
+    height: 260,
+    colorDark: "#0A2A52",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  urlLabel.textContent = texto;
+}
+
+document.getElementById("btnGerar").addEventListener("click", gerar);
+document.getElementById("btnImprimir").addEventListener("click", () => window.print());
+
+document.getElementById("btnBaixar").addEventListener("click", () => {
+  const canvas = qrBox.querySelector("canvas");
+  const img = qrBox.querySelector("img");
+  let dataUrl;
+  if (canvas) dataUrl = canvas.toDataURL("image/png");
+  else if (img) dataUrl = img.src;
+  else { alert("Gere o QR Code primeiro."); return; }
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = "qrcode-rifa-azul-logistica.png";
+  a.click();
+});
+
+gerar();
+</script>
+</body>
+</html>
