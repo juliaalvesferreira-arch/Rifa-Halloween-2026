@@ -1067,10 +1067,30 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
 }
 .prize-chip.is-done{
   background:#F4F5F7;border-color:#E2E5EA;color:var(--ink-400);
-  cursor:default;text-decoration:line-through;
+  text-decoration:line-through;
 }
+.prize-chip.is-done:hover{border-color:var(--blue-400);color:var(--ink-600);}
 .prize-chip .check{font-size:11px;}
 .prize-chip.is-done .check{text-decoration:none;}
+/* prêmio já entregue que foi reaberto para novo sorteio */
+.prize-chip.is-repeat{
+  background:var(--blue-600);border-color:var(--blue-600);
+  color:#fff;text-decoration:none;
+}
+
+.redraw-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.redraw-opt{
+  text-align:left;background:var(--blue-25);
+  border:1.5px solid var(--blue-100);border-radius:var(--radius-s);
+  padding:14px 16px;cursor:pointer;font-family:var(--font-body);
+  transition:border-color .15s ease,background .15s ease;
+}
+.redraw-opt:hover{border-color:var(--blue-500);background:var(--white);}
+.redraw-opt .t{
+  display:block;font-family:var(--font-display);font-weight:700;
+  font-size:14px;color:var(--blue-900);margin-bottom:3px;
+}
+.redraw-opt .d{display:block;font-size:12.5px;color:var(--ink-600);line-height:1.45;}
 
 .prize-now{
   display:inline-flex;align-items:center;gap:9px;
@@ -1327,6 +1347,26 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
           </div>
         </div>
         <div id="vendasWrap"><p class="empty-state">Carregando...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="prizeModal">
+    <div class="modal">
+      <h2>Sortear de novo: <span id="prizeModalNome"></span></h2>
+      <p class="sub" id="prizeModalInfo"></p>
+      <div class="redraw-opts">
+        <button class="redraw-opt" id="btnOutraUnidade" type="button">
+          <span class="t">Sortear outra unidade</span>
+          <span class="d">Há mais de um exemplar deste prêmio. O ganhador anterior é mantido na lista e continua fora do sorteio.</span>
+        </button>
+        <button class="redraw-opt" id="btnRefazer" type="button">
+          <span class="t">Refazer este sorteio</span>
+          <span class="d">Descarta o resultado anterior deste prêmio. O ganhador anterior volta a concorrer — use se a pessoa não estiver presente.</span>
+        </button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="btnPrizeCancelar" type="button" style="color:var(--ink-900);">Cancelar</button>
       </div>
     </div>
   </div>
@@ -1813,6 +1853,8 @@ const PREMIOS = [
 ];
 let premios = [...PREMIOS];
 let premioAtual = premios[0];
+// prêmio já entregue que foi reaberto para um novo sorteio (vale uma rodada)
+let repetindo = null;
 
 let modo = "oficial";       // "oficial" ou "teste"
 let poolModo = "vendidos";
@@ -1836,20 +1878,27 @@ function desenharPremios() {
   const entregues = premiosEntregues();
 
   // se o prêmio selecionado já foi entregue, pula para o próximo livre
-  if (!premioAtual || entregues.has(premioAtual)) {
-    premioAtual = premios.find((p) => !entregues.has(p)) || null;
+  // (a menos que tenha sido reaberto de propósito)
+  if (!premioAtual || (entregues.has(premioAtual) && premioAtual !== repetindo)) {
+    premioAtual = premios.find((p) => !entregues.has(p)) || repetindo || null;
   }
 
   prizeGrid.innerHTML = premios
     .map((p) => {
       const feito = entregues.has(p);
+      const repeat = feito && p === repetindo && p === premioAtual;
       const ativo = !feito && p === premioAtual;
+      const vezes = historico[modo].filter((h) => h.premio === p).length;
       return (
         '<button type="button" class="prize-chip' +
-        (feito ? " is-done" : "") + (ativo ? " is-active" : "") +
+        (feito && !repeat ? " is-done" : "") +
+        (repeat ? " is-repeat" : "") +
+        (ativo ? " is-active" : "") +
         '" data-premio="' + escapeHtml(p) + '">' +
-        (feito ? '<span class="check">✓</span>' : "") +
-        escapeHtml(p) + "</button>"
+        (feito && !repeat ? '<span class="check">✓</span>' : "") +
+        escapeHtml(p) +
+        (vezes > 1 ? ' <span class="check">×' + vezes + "</span>" : "") +
+        "</button>"
       );
     })
     .join("");
@@ -1864,9 +1913,71 @@ function desenharPremios() {
 
 prizeGrid.addEventListener("click", (e) => {
   const chip = e.target.closest(".prize-chip");
-  if (!chip || sorteando || chip.classList.contains("is-done")) return;
-  premioAtual = chip.dataset.premio;
+  if (!chip || sorteando) return;
+  const p = chip.dataset.premio;
+
+  // prêmio já entregue: pergunta se é outra unidade ou refazer
+  if (premiosEntregues().has(p) && p !== repetindo) {
+    abrirModalRepetir(p);
+    return;
+  }
+  premioAtual = p;
   desenharPremios();
+  atualizarPool();
+});
+
+// ---------- Sortear de novo um prêmio já entregue ----------
+const prizeModal = document.getElementById("prizeModal");
+const prizeModalNome = document.getElementById("prizeModalNome");
+const prizeModalInfo = document.getElementById("prizeModalInfo");
+let premioEmQuestao = null;
+
+function abrirModalRepetir(p) {
+  premioEmQuestao = p;
+  const anteriores = historico[modo].filter((h) => h.premio === p);
+  const ultimo = anteriores[0];
+  prizeModalNome.textContent = p;
+  prizeModalInfo.textContent =
+    "Já sorteado " + anteriores.length + (anteriores.length > 1 ? " vezes" : " vez") +
+    (ultimo ? " — o último foi o nº " + pad(ultimo.numero) + ", de " + ultimo.nome + "." : ".");
+  prizeModal.classList.add("is-open");
+}
+
+function fecharModalRepetir() {
+  prizeModal.classList.remove("is-open");
+  premioEmQuestao = null;
+}
+
+document.getElementById("btnPrizeCancelar").addEventListener("click", fecharModalRepetir);
+prizeModal.addEventListener("click", (e) => {
+  if (e.target === prizeModal) fecharModalRepetir();
+});
+
+// Outra unidade: mantém o ganhador anterior e sorteia mais uma vez.
+document.getElementById("btnOutraUnidade").addEventListener("click", () => {
+  repetindo = premioEmQuestao;
+  premioAtual = premioEmQuestao;
+  fecharModalRepetir();
+  desenharPremios();
+  atualizarPool();
+  mostrarToast("Nova unidade de " + premioAtual + " liberada para sorteio.");
+});
+
+// Refazer: apaga o último resultado desse prêmio e devolve a pessoa ao sorteio.
+document.getElementById("btnRefazer").addEventListener("click", () => {
+  const p = premioEmQuestao;
+  const i = historico[modo].findIndex((h) => h.premio === p);
+  if (i >= 0) {
+    const removido = historico[modo][i];
+    historico[modo].splice(i, 1);
+    mostrarToast(removido.nome + " voltou a concorrer. Sorteie " + p + " novamente.");
+  }
+  repetindo = null;
+  premioAtual = p;
+  fecharModalRepetir();
+  winnerCard.classList.remove("is-visible");
+  desenharPremios();
+  desenharHistorico();
   atualizarPool();
 });
 
@@ -1944,7 +2055,8 @@ function atualizarPool() {
     drawSub.textContent = "Todos os prêmios da lista já foram sorteados.";
     poolNote.innerHTML =
       "<strong>" + historico[modo].length + "</strong> prêmio(s) entregue(s)" +
-      ' · <span class="excl-note">use “+ Outro prêmio” para continuar</span>';
+      '<div class="excl-note">Clique num prêmio riscado para sortear outra unidade' +
+      " ou refazer · “+ Outro prêmio” adiciona um novo</div>";
     btnSortear.disabled = true;
     return;
   }
@@ -1975,6 +2087,7 @@ modeSwitch.addEventListener("click", (e) => {
   testBanner.style.display = teste ? "block" : "none";
   winnerCard.classList.remove("is-visible");
   btnSortear.textContent = "Sortear";
+  repetindo = null;
   desenharPremios();
   desenharHistorico();
   atualizarPool();
@@ -1989,6 +2102,7 @@ btnLimparHist.addEventListener("click", () => {
   historico[modo] = [];
   winnerCard.classList.remove("is-visible");
   btnSortear.textContent = "Sortear";
+  repetindo = null;
   desenharPremios();
   desenharHistorico();
   atualizarPool();
@@ -2200,6 +2314,7 @@ btnSortear.addEventListener("click", async () => {
   desenharHistorico();
 
   sorteando = false;
+  repetindo = null;   // a autorização de repetir vale só para esta rodada
   desenharPremios();  // marca o prêmio entregue e avança para o próximo
   atualizarPool();    // já remove o ganhador e reabilita (ou não) o botão
   if (!btnSortear.disabled) btnSortear.textContent = "Sortear novamente";
