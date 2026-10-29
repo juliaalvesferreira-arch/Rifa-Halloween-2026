@@ -1036,6 +1036,121 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
 }
 .draw-options .hint{font-size:12.5px;color:var(--ink-600);}
 
+/* Seleção de prêmios */
+.prize-panel{
+  background:var(--white);border-radius:var(--radius-m);
+  padding:20px 22px;box-shadow:var(--shadow-card);
+  margin-bottom:18px;border-left:3px solid var(--cyan-400);
+}
+.prize-head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;margin-bottom:14px;
+}
+.prize-head .lbl{
+  font-family:var(--font-display);font-weight:700;
+  font-size:14px;color:var(--blue-900);
+}
+.prize-head .hint{font-size:12.5px;color:var(--ink-600);}
+
+.prize-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.prize-chip{
+  background:var(--blue-25);border:1.5px solid var(--blue-100);
+  border-radius:99px;padding:9px 16px;cursor:pointer;
+  font-family:var(--font-body);font-size:13.5px;font-weight:600;
+  color:var(--blue-900);
+  transition:border-color .15s ease,background .15s ease,color .15s ease;
+  display:flex;align-items:center;gap:7px;
+}
+.prize-chip:hover:not(.is-done){border-color:var(--blue-500);}
+.prize-chip.is-active{
+  background:var(--blue-600);border-color:var(--blue-600);color:#fff;
+}
+.prize-chip.is-done{
+  background:#F4F5F7;border-color:#E2E5EA;color:var(--ink-400);
+  cursor:default;text-decoration:line-through;
+}
+.prize-chip .check{font-size:11px;}
+.prize-chip.is-done .check{text-decoration:none;}
+
+.prize-now{
+  display:inline-flex;align-items:center;gap:9px;
+  background:rgba(99,194,232,.16);
+  border:1.5px solid var(--cyan-400);
+  border-radius:99px;padding:8px 18px;margin-bottom:18px;
+}
+.prize-now .k{
+  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-300);
+}
+.prize-now .v{
+  font-family:var(--font-display);font-weight:700;font-size:15px;color:#fff;
+}
+.draw-stage.is-test .prize-now{background:rgba(199,208,218,.16);border-color:#A9B4C2;}
+.draw-stage.is-test .prize-now .k{color:#C7D0DA;}
+
+.winner-prize{
+  font-family:var(--font-display);font-weight:700;
+  font-size:15px;color:#fff;
+  background:rgba(99,194,232,.2);
+  border-radius:99px;padding:7px 18px;
+  display:inline-block;margin-bottom:14px;
+}
+.draw-stage.is-test .winner-prize{background:rgba(199,208,218,.2);}
+
+.hist-prize{
+  font-family:var(--font-display);font-weight:600;color:var(--blue-800);
+}
+
+/* Seletor Oficial / Teste */
+.mode-switch{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;
+}
+.mode-btn{
+  background:var(--white);border:2px solid var(--blue-100);
+  border-radius:var(--radius-m);padding:14px 18px;cursor:pointer;
+  text-align:left;transition:border-color .15s ease,background .15s ease;
+  box-shadow:var(--shadow-card);
+}
+.mode-btn:hover{border-color:var(--blue-400);}
+.mode-name{
+  display:block;font-family:var(--font-display);font-weight:700;
+  font-size:16px;color:var(--blue-900);
+}
+.mode-desc{display:block;font-size:12.5px;color:var(--ink-600);margin-top:2px;}
+.mode-btn.is-active{border-color:var(--blue-600);background:var(--blue-25);}
+.mode-btn[data-modo="teste"].is-active{
+  border-color:var(--ink-400);background:#F4F5F7;
+}
+.mode-btn[data-modo="teste"].is-active .mode-name{color:var(--ink-600);}
+
+.test-banner{
+  background:#F4F5F7;border-left:3px solid var(--ink-400);
+  border-radius:var(--radius-s);padding:13px 16px;margin-bottom:18px;
+  font-size:13px;color:var(--ink-600);line-height:1.5;
+}
+.test-banner strong{font-family:var(--font-display);color:var(--ink-900);}
+
+/* O palco perde a cor no modo teste, para não confundir com o oficial */
+.draw-stage.is-test{
+  background:linear-gradient(150deg,#2B3340 0%,#434D5C 60%,#55606F 100%);
+}
+.draw-stage.is-test .reel-marker{
+  border-color:#A9B4C2;background:rgba(169,180,194,.1);
+}
+.draw-stage.is-test .draw-eyebrow,
+.draw-stage.is-test .countdown{color:#C7D0DA;}
+.draw-stage.is-test .winner-card{border-color:#A9B4C2;}
+.draw-stage.is-test .winner-name,
+.draw-stage.is-test .winner-label{color:#C7D0DA;}
+.draw-stage.is-test .btn-draw{
+  background:#C7D0DA;color:#2B3340;box-shadow:none;
+}
+.draw-stage.is-test .bp-stub-value{color:#C7D0DA;}
+
+.excl-note{
+  margin-top:8px;font-size:12.5px;color:var(--blue-200);
+}
+.draw-stage.is-test .excl-note{color:#C7D0DA;}
+
 .hist-num{
   font-family:var(--font-display);font-weight:700;
   color:var(--blue-800);background:var(--blue-50);
@@ -1099,6 +1214,33 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
     </div>
 
     <div class="container" id="tabSorteio" style="display:none;">
+      <div class="mode-switch">
+        <button class="mode-btn is-active" data-modo="oficial" type="button">
+          <span class="mode-name">Oficial</span>
+          <span class="mode-desc">Vale o sorteio de verdade</span>
+        </button>
+        <button class="mode-btn" data-modo="teste" type="button">
+          <span class="mode-name">Teste</span>
+          <span class="mode-desc">Simulação, não conta</span>
+        </button>
+      </div>
+
+      <div class="test-banner" id="testBanner" style="display:none;">
+        <strong>Modo teste.</strong> Nada aqui conta para o sorteio oficial — os
+        resultados ficam separados e você pode limpar quando quiser.
+      </div>
+
+      <div class="prize-panel">
+        <div class="prize-head">
+          <div>
+            <div class="lbl">Prêmio desta rodada</div>
+            <div class="hint">Clique para escolher. Os já sorteados ficam riscados.</div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btnAddPremio" type="button">+ Outro prêmio</button>
+        </div>
+        <div class="prize-grid" id="prizeGrid"></div>
+      </div>
+
       <div class="draw-options">
         <div>
           <div class="lbl">Quem entra no sorteio</div>
@@ -1110,10 +1252,15 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
         </div>
       </div>
 
-      <div class="draw-stage">
+      <div class="draw-stage" id="drawStage">
         <div class="draw-eyebrow">Rifa Azul Logística · Halloween 2026</div>
         <h2 class="draw-title">Sorteio</h2>
         <p class="draw-sub" id="drawSub">Carregando participantes...</p>
+
+        <div class="prize-now" id="prizeNow" style="display:none;">
+          <span class="k">Prêmio</span>
+          <span class="v" id="prizeNowValue">—</span>
+        </div>
 
         <div class="reel-frame is-idle" id="reelFrame">
           <div class="reel-strip" id="reelStrip"></div>
@@ -1129,6 +1276,7 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
         </div>
 
         <div class="winner-card" id="winnerCard">
+          <div class="winner-prize" id="winnerPrize">—</div>
           <div class="winner-label">Número sorteado</div>
           <div class="winner-number" id="winnerNumber">—</div>
           <div class="winner-name" id="winnerName">—</div>
@@ -1137,7 +1285,10 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
       </div>
 
       <div class="admin-section" id="histSection" style="display:none;">
-        <h2>Sorteios realizados nesta sessão</h2>
+        <div class="section-head">
+          <h2 id="histTitulo">Ganhadores</h2>
+          <button class="btn btn-outline btn-sm" id="btnLimparHist" type="button">Limpar</button>
+        </div>
         <div id="histWrap"></div>
       </div>
     </div>
@@ -1630,6 +1781,16 @@ const winnerCard = document.getElementById("winnerCard");
 const winnerNumber = document.getElementById("winnerNumber");
 const winnerName = document.getElementById("winnerName");
 const winnerContact = document.getElementById("winnerContact");
+const prizeGrid = document.getElementById("prizeGrid");
+const prizeNow = document.getElementById("prizeNow");
+const prizeNowValue = document.getElementById("prizeNowValue");
+const winnerPrize = document.getElementById("winnerPrize");
+const btnAddPremio = document.getElementById("btnAddPremio");
+const drawStage = document.getElementById("drawStage");
+const testBanner = document.getElementById("testBanner");
+const modeSwitch = document.querySelector(".mode-switch");
+const histTitulo = document.getElementById("histTitulo");
+const btnLimparHist = document.getElementById("btnLimparHist");
 const histSection = document.getElementById("histSection");
 const histWrap = document.getElementById("histWrap");
 const confettiCanvas = document.getElementById("confettiCanvas");
@@ -1639,10 +1800,88 @@ const SPIN_MS = 6200;       // duração do giro
 // deslocamento que deixa um item centralizado na janela do marcador
 const centrar = (indice) =>
   (reelFrame.clientHeight - ITEM_H) / 2 - indice * ITEM_H;
+const PREMIOS = [
+  "Cafeteira",
+  "Kit DoTerra",
+  "Kit de pipoca",
+  "R$ 200 no PIX",
+  "JBL",
+  "Garrafa Stanley",
+  "Kit Herbalife",
+  "Alexa",
+  "Kit Wine",
+];
+let premios = [...PREMIOS];
+let premioAtual = premios[0];
+
+let modo = "oficial";       // "oficial" ou "teste"
 let poolModo = "vendidos";
 let sorteando = false;
 let somLigado = true;
-let historico = [];
+// Históricos separados: o teste nunca interfere no oficial.
+let historico = { oficial: [], teste: [] };
+
+// Identidade do participante — é por pessoa, não por número.
+const chaveDe = (p) => (p.email || p.nome || "").trim().toLowerCase();
+
+// Quem já ganhou no modo atual sai do sorteio.
+function jaGanharam() {
+  return new Set(historico[modo].map((h) => h.chave));
+}
+
+// ---------- Prêmios ----------
+const premiosEntregues = () => new Set(historico[modo].map((h) => h.premio));
+
+function desenharPremios() {
+  const entregues = premiosEntregues();
+
+  // se o prêmio selecionado já foi entregue, pula para o próximo livre
+  if (!premioAtual || entregues.has(premioAtual)) {
+    premioAtual = premios.find((p) => !entregues.has(p)) || null;
+  }
+
+  prizeGrid.innerHTML = premios
+    .map((p) => {
+      const feito = entregues.has(p);
+      const ativo = !feito && p === premioAtual;
+      return (
+        '<button type="button" class="prize-chip' +
+        (feito ? " is-done" : "") + (ativo ? " is-active" : "") +
+        '" data-premio="' + escapeHtml(p) + '">' +
+        (feito ? '<span class="check">✓</span>' : "") +
+        escapeHtml(p) + "</button>"
+      );
+    })
+    .join("");
+
+  if (premioAtual) {
+    prizeNow.style.display = "inline-flex";
+    prizeNowValue.textContent = premioAtual;
+  } else {
+    prizeNow.style.display = "none";
+  }
+}
+
+prizeGrid.addEventListener("click", (e) => {
+  const chip = e.target.closest(".prize-chip");
+  if (!chip || sorteando || chip.classList.contains("is-done")) return;
+  premioAtual = chip.dataset.premio;
+  desenharPremios();
+  atualizarPool();
+});
+
+btnAddPremio.addEventListener("click", () => {
+  const nome = (prompt("Nome do prêmio:") || "").trim();
+  if (!nome) return;
+  if (premios.some((p) => p.toLowerCase() === nome.toLowerCase())) {
+    mostrarToast("Esse prêmio já está na lista.", true);
+    return;
+  }
+  premios.push(nome);
+  premioAtual = nome;
+  desenharPremios();
+  atualizarPool();
+});
 
 // ---------- Abas ----------
 document.querySelector(".tabbar-inner").addEventListener("click", (e) => {
@@ -1673,21 +1912,40 @@ function montarPool() {
   };
   vendasDocs.forEach((d) => push("vendido", d));
   if (poolModo === "todos") pendentesDocs.forEach((d) => push("pendente", d));
-  return itens.sort((a, b) => a.numero - b.numero);
+
+  // tira do sorteio quem já foi contemplado neste modo
+  const ganhadores = jaGanharam();
+  return itens
+    .filter((i) => !ganhadores.has(chaveDe(i)))
+    .sort((a, b) => a.numero - b.numero);
 }
 
 function atualizarPool() {
   if (!poolNote) return;
   const itens = montarPool();
-  const pessoas = new Set(itens.map((i) => i.email || i.nome)).size;
+  const pessoas = new Set(itens.map((i) => chaveDe(i))).size;
+  const jaSorteados = historico[modo].length;
 
   if (itens.length === 0) {
-    drawSub.textContent = poolModo === "vendidos"
-      ? "Nenhum número vendido ainda — aprove as solicitações ou inclua os pendentes."
-      : "Nenhum número reservado ainda.";
-    poolNote.innerHTML = "";
+    drawSub.textContent = jaSorteados > 0
+      ? "Todos os participantes já foram sorteados."
+      : poolModo === "vendidos"
+        ? "Nenhum número vendido ainda — aprove as solicitações ou inclua os pendentes."
+        : "Nenhum número reservado ainda.";
+    poolNote.innerHTML = jaSorteados > 0
+      ? "<strong>" + jaSorteados + "</strong> ganhador(es) já sorteado(s)"
+      : "";
     btnSortear.disabled = true;
     desenharBobinaParada([]);
+    return;
+  }
+
+  if (!premioAtual) {
+    drawSub.textContent = "Todos os prêmios da lista já foram sorteados.";
+    poolNote.innerHTML =
+      "<strong>" + historico[modo].length + "</strong> prêmio(s) entregue(s)" +
+      ' · <span class="excl-note">use “+ Outro prêmio” para continuar</span>';
+    btnSortear.disabled = true;
     return;
   }
 
@@ -1695,10 +1953,47 @@ function atualizarPool() {
   poolNote.innerHTML =
     "<strong>" + itens.length + "</strong> número(s) concorrendo · <strong>" +
     pessoas + "</strong> participante(s)" +
-    (poolModo === "todos" ? " · inclui pendentes de pagamento" : "");
+    (poolModo === "todos" ? " · inclui pendentes de pagamento" : "") +
+    (jaSorteados > 0
+      ? '<div class="excl-note">' + jaSorteados +
+        " ganhador(es) anterior(es) fora do sorteio</div>"
+      : "");
   btnSortear.disabled = sorteando;
   if (!sorteando) desenharBobinaParada(itens);
 }
+
+// ---------- Modo Oficial / Teste ----------
+modeSwitch.addEventListener("click", (e) => {
+  const btn = e.target.closest(".mode-btn");
+  if (!btn || sorteando) return;
+  modo = btn.dataset.modo;
+  modeSwitch.querySelectorAll(".mode-btn").forEach((b) =>
+    b.classList.toggle("is-active", b.dataset.modo === modo)
+  );
+  const teste = modo === "teste";
+  drawStage.classList.toggle("is-test", teste);
+  testBanner.style.display = teste ? "block" : "none";
+  winnerCard.classList.remove("is-visible");
+  btnSortear.textContent = "Sortear";
+  desenharPremios();
+  desenharHistorico();
+  atualizarPool();
+});
+
+btnLimparHist.addEventListener("click", () => {
+  if (historico[modo].length === 0) return;
+  if (modo === "oficial" &&
+      !confirm("Apagar os ganhadores do sorteio OFICIAL? Eles voltam a concorrer.")) {
+    return;
+  }
+  historico[modo] = [];
+  winnerCard.classList.remove("is-visible");
+  btnSortear.textContent = "Sortear";
+  desenharPremios();
+  desenharHistorico();
+  atualizarPool();
+  mostrarToast(modo === "teste" ? "Simulação limpa." : "Sorteio oficial zerado.");
+});
 
 poolToggle.addEventListener("click", (e) => {
   const btn = e.target.closest(".view-btn");
@@ -1815,7 +2110,8 @@ function soltarConfete() {
 btnSortear.addEventListener("click", async () => {
   if (sorteando) return;
   const itens = montarPool();
-  if (itens.length === 0) return;
+  if (itens.length === 0 || !premioAtual) return;
+  const premioDaRodada = premioAtual;
 
   sorteando = true;
   btnSortear.disabled = true;
@@ -1879,6 +2175,7 @@ btnSortear.addEventListener("click", async () => {
   await new Promise((r) => setTimeout(r, SPIN_MS + 350));
 
   // revela
+  winnerPrize.textContent = premioDaRodada;
   winnerNumber.textContent = pad(vencedor.numero);
   winnerName.textContent = vencedor.nome;
   winnerContact.innerHTML =
@@ -1890,37 +2187,56 @@ btnSortear.addEventListener("click", async () => {
   fanfarra();
   soltarConfete();
 
-  historico.unshift({
+  historico[modo].unshift({
+    premio: premioDaRodada,
     numero: vencedor.numero,
     nome: vencedor.nome,
+    email: vencedor.email,
+    celular: vencedor.celular,
+    chave: chaveDe(vencedor),
     hora: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
     origem: vencedor.origem,
   });
   desenharHistorico();
 
   sorteando = false;
-  btnSortear.disabled = false;
-  btnSortear.textContent = "Sortear novamente";
+  desenharPremios();  // marca o prêmio entregue e avança para o próximo
+  atualizarPool();    // já remove o ganhador e reabilita (ou não) o botão
+  if (!btnSortear.disabled) btnSortear.textContent = "Sortear novamente";
 });
 
 function desenharHistorico() {
-  if (historico.length === 0) return;
+  const lista = historico[modo];
+  histTitulo.textContent =
+    modo === "teste" ? "Ganhadores da simulação" : "Ganhadores do sorteio oficial";
+  btnLimparHist.textContent = modo === "teste" ? "Limpar simulação" : "Zerar sorteio";
+
+  if (lista.length === 0) {
+    histSection.style.display = "none";
+    histWrap.innerHTML = "";
+    return;
+  }
   histSection.style.display = "block";
   histWrap.innerHTML =
     '<div class="table-scroll"><table class="sales-table"><thead><tr>' +
-    "<th>Ordem</th><th>Nº</th><th>Ganhador</th><th>Hora</th></tr></thead><tbody>" +
-    historico
+    "<th>Ordem</th><th>Prêmio</th><th>Nº</th><th>Ganhador</th><th>Contato</th><th>Hora</th>" +
+    "</tr></thead><tbody>" +
+    lista
       .map((h, i) =>
-        "<tr><td>" + (historico.length - i) + "º</td>" +
+        "<tr><td>" + (lista.length - i) + "º</td>" +
+        '<td><span class="hist-prize">' + escapeHtml(h.premio || "—") + "</span></td>" +
         '<td><span class="hist-num">' + pad(h.numero) + "</span></td>" +
         "<td>" + escapeHtml(h.nome) +
-        (h.origem === "pendente" ? ' <span style="color:var(--blue-500)">(pendente)</span>' : "") +
+        (h.origem === "pendente"
+          ? ' <span style="color:var(--blue-500)">(pendente)</span>' : "") +
+        "</td><td>" + escapeHtml(h.celular || h.email || "") +
         "</td><td>" + h.hora + "</td></tr>"
       )
       .join("") +
     "</tbody></table></div>";
 }
 
+desenharPremios();
 desenharBobinaParada([]);
 
 </script>
