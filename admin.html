@@ -863,6 +863,185 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
 }
 .setup-banner p{margin:0;color:var(--blue-800);font-size:13.5px;}
 
+/* ---------- Abas ---------- */
+.tabbar{
+  background:var(--blue-900);
+  border-top:1px solid rgba(255,255,255,.08);
+  padding:0 20px;
+}
+.tabbar-inner{
+  max-width:1080px;margin:0 auto;display:flex;gap:4px;
+}
+.tab-btn{
+  background:transparent;border:none;cursor:pointer;
+  color:var(--blue-300);font-family:var(--font-display);
+  font-weight:600;font-size:14px;padding:14px 20px;
+  border-bottom:3px solid transparent;
+  transition:color .15s ease,border-color .15s ease;
+}
+.tab-btn:hover{color:#fff;}
+.tab-btn.is-active{color:#fff;border-bottom-color:var(--cyan-400);}
+
+/* ---------- Palco do sorteio ---------- */
+.draw-stage{
+  background:linear-gradient(150deg,var(--blue-950) 0%,var(--blue-800) 60%,var(--blue-700) 100%);
+  border-radius:var(--radius-l);
+  padding:36px 28px 40px;
+  text-align:center;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow-card-lg);
+  margin-bottom:24px;
+}
+.draw-stage::before{
+  content:"";position:absolute;inset:0;
+  background-image:repeating-linear-gradient(115deg,rgba(255,255,255,.05) 0 2px,transparent 2px 14px);
+  pointer-events:none;
+}
+.draw-stage > *{position:relative;z-index:1;}
+
+.draw-eyebrow{
+  font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan-300);margin-bottom:8px;
+}
+.draw-title{
+  font-family:var(--font-display);font-weight:800;
+  font-size:clamp(24px,4vw,34px);margin:0 0 6px;line-height:1.1;
+}
+.draw-sub{color:var(--blue-200);font-size:14px;margin:0 0 26px;}
+
+/* Bobina */
+.reel-frame{
+  position:relative;
+  width:min(260px,72vw);
+  height:170px;
+  margin:0 auto;
+  border-radius:18px;
+  background:rgba(255,255,255,.07);
+  border:2px solid rgba(255,255,255,.18);
+  overflow:hidden;
+  box-shadow:inset 0 0 40px rgba(0,0,0,.35);
+}
+.reel-frame::before,.reel-frame::after{
+  content:"";position:absolute;left:0;right:0;height:54px;z-index:3;pointer-events:none;
+}
+.reel-frame::before{top:0;background:linear-gradient(180deg,rgba(6,27,54,.92),transparent);}
+.reel-frame::after{bottom:0;background:linear-gradient(0deg,rgba(6,27,54,.92),transparent);}
+
+.reel-marker{
+  position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+  height:62px;z-index:4;pointer-events:none;
+  border-top:2px solid var(--cyan-400);
+  border-bottom:2px solid var(--cyan-400);
+  background:rgba(99,194,232,.08);
+}
+.reel-strip{
+  position:absolute;left:0;right:0;top:0;
+  will-change:transform;
+}
+.reel-item{
+  height:62px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:800;
+  font-size:38px;letter-spacing:.04em;
+  color:#fff;
+}
+.reel-frame.is-idle .reel-item{color:rgba(255,255,255,.55);}
+
+/* Contagem regressiva */
+.countdown{
+  position:absolute;inset:0;z-index:6;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(6,27,54,.82);
+  font-family:var(--font-display);font-weight:800;font-size:76px;
+  color:var(--cyan-300);
+}
+.countdown.pop{animation:cd-pop .85s ease;}
+@keyframes cd-pop{
+  0%{transform:scale(.4);opacity:0;}
+  35%{transform:scale(1.1);opacity:1;}
+  70%{transform:scale(1);opacity:1;}
+  100%{transform:scale(1.6);opacity:0;}
+}
+
+.draw-actions{
+  display:flex;gap:10px;justify-content:center;align-items:center;
+  flex-wrap:wrap;margin-top:26px;
+}
+.btn-draw{
+  background:var(--cyan-400);color:var(--blue-950);
+  border:none;border-radius:99px;padding:15px 38px;
+  font-family:var(--font-display);font-weight:700;font-size:16px;
+  cursor:pointer;transition:filter .15s ease,transform .1s ease;
+  box-shadow:0 8px 22px rgba(99,194,232,.3);
+}
+.btn-draw:hover:not(:disabled){filter:brightness(1.07);}
+.btn-draw:active:not(:disabled){transform:scale(.98);}
+.btn-draw:disabled{background:rgba(255,255,255,.2);color:rgba(255,255,255,.5);box-shadow:none;cursor:not-allowed;}
+.btn-stage-ghost{
+  background:transparent;border:1.5px solid rgba(255,255,255,.35);
+  color:#fff;border-radius:99px;padding:13px 22px;
+  font-family:var(--font-display);font-weight:600;font-size:13.5px;cursor:pointer;
+}
+.btn-stage-ghost:hover{background:rgba(255,255,255,.1);}
+
+.pool-note{
+  margin-top:16px;font-size:13px;color:var(--blue-200);
+}
+.pool-note strong{color:#fff;font-family:var(--font-display);}
+
+/* Vencedor */
+.winner-card{
+  margin-top:28px;padding:26px 22px;
+  background:rgba(255,255,255,.1);
+  border:2px solid var(--cyan-400);
+  border-radius:var(--radius-m);
+  display:none;
+}
+.winner-card.is-visible{display:block;animation:win-in .5s cubic-bezier(.2,.9,.3,1.3) both;}
+@keyframes win-in{
+  from{opacity:0;transform:translateY(14px) scale(.96);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.winner-label{
+  font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan-300);margin-bottom:10px;
+}
+.winner-number{
+  font-family:var(--font-display);font-weight:800;
+  font-size:clamp(44px,9vw,64px);line-height:1;color:#fff;
+  margin-bottom:10px;
+}
+.winner-name{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(20px,4vw,26px);color:var(--cyan-300);margin-bottom:12px;
+}
+.winner-contact{font-size:13.5px;color:var(--blue-200);line-height:1.7;}
+
+#confettiCanvas{
+  position:fixed;inset:0;pointer-events:none;z-index:70;display:none;
+}
+
+/* Opções do sorteio */
+.draw-options{
+  background:var(--white);border-radius:var(--radius-m);
+  padding:20px 22px;box-shadow:var(--shadow-card);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-bottom:24px;
+  border-left:3px solid var(--blue-500);
+}
+.draw-options .lbl{
+  font-family:var(--font-display);font-weight:700;
+  font-size:14px;color:var(--blue-900);margin-bottom:3px;
+}
+.draw-options .hint{font-size:12.5px;color:var(--ink-600);}
+
+.hist-num{
+  font-family:var(--font-display);font-weight:700;
+  color:var(--blue-800);background:var(--blue-50);
+  border-radius:5px;padding:3px 9px;display:inline-block;
+}
+
 @media (max-width:640px){
   .boarding-pass{grid-template-columns:1fr;}
   .bp-stub{border-left:none;border-top:2px dashed rgba(255,255,255,0.32);}
@@ -911,9 +1090,59 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
           <button class="btn btn-outline" id="btnLogout">Sair</button>
         </div>
       </div>
+      <div class="tabbar">
+        <div class="tabbar-inner">
+          <button class="tab-btn is-active" data-tab="gestao" type="button">Gestão</button>
+          <button class="tab-btn" data-tab="sorteio" type="button">Sorteio</button>
+        </div>
+      </div>
     </div>
 
-    <div class="container">
+    <div class="container" id="tabSorteio" style="display:none;">
+      <div class="draw-options">
+        <div>
+          <div class="lbl">Quem entra no sorteio</div>
+          <div class="hint">Escolha se apenas os números pagos concorrem ou se os pendentes também entram.</div>
+        </div>
+        <div class="view-toggle" id="poolToggle">
+          <button class="view-btn is-active" data-pool="vendidos" type="button">Só vendidos</button>
+          <button class="view-btn" data-pool="todos" type="button">Vendidos + pendentes</button>
+        </div>
+      </div>
+
+      <div class="draw-stage">
+        <div class="draw-eyebrow">Rifa Azul Logística · Halloween 2026</div>
+        <h2 class="draw-title">Sorteio</h2>
+        <p class="draw-sub" id="drawSub">Carregando participantes...</p>
+
+        <div class="reel-frame is-idle" id="reelFrame">
+          <div class="reel-strip" id="reelStrip"></div>
+          <div class="reel-marker"></div>
+          <div class="countdown" id="countdown" style="display:none;"></div>
+        </div>
+
+        <div class="pool-note" id="poolNote"></div>
+
+        <div class="draw-actions">
+          <button class="btn-draw" id="btnSortear" type="button" disabled>Sortear</button>
+          <button class="btn-stage-ghost" id="btnSom" type="button">Som: ligado</button>
+        </div>
+
+        <div class="winner-card" id="winnerCard">
+          <div class="winner-label">Número sorteado</div>
+          <div class="winner-number" id="winnerNumber">—</div>
+          <div class="winner-name" id="winnerName">—</div>
+          <div class="winner-contact" id="winnerContact"></div>
+        </div>
+      </div>
+
+      <div class="admin-section" id="histSection" style="display:none;">
+        <h2>Sorteios realizados nesta sessão</h2>
+        <div id="histWrap"></div>
+      </div>
+    </div>
+
+    <div class="container" id="tabGestao">
       <div class="setup-banner" id="setupBanner" style="display:none;">
         <p><strong>Rifa não inicializada.</strong> Clique para criar os 300 números antes de divulgar a página pública.</p>
         <button class="btn btn-solid-blue" id="btnInicializar">Inicializar sorteio</button>
@@ -952,6 +1181,7 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
   </div>
 
   <div class="toast" id="toast"></div>
+  <canvas id="confettiCanvas"></canvas>
 
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -1009,6 +1239,7 @@ const vendasSearch = document.getElementById("vendasSearch");
 const btnExportar = document.getElementById("btnExportar");
 
 let vendasDocs = [];
+let pendentesDocs = [];
 let vistaAtual = "numero";
 
 const toast = document.getElementById("toast");
@@ -1153,6 +1384,8 @@ function iniciarListeners() {
 }
 
 function renderPendentes(docs) {
+  pendentesDocs = docs.map((d) => d.data());
+  atualizarPool();
   if (docs.length === 0) {
     pendentesWrap.innerHTML = '<p class="empty-state">Nenhuma solicitação pendente no momento.</p>';
     return;
@@ -1190,6 +1423,7 @@ function renderPendentes(docs) {
 function renderVendas(docs) {
   vendasDocs = docs.map((d) => d.data());
   desenharVendas();
+  atualizarPool();
 }
 
 // Achata as solicitações aprovadas em uma linha por número vendido.
@@ -1377,6 +1611,317 @@ function escapeHtml(str) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[c]));
 }
+
+/* =========================================================
+   SORTEIO
+   ========================================================= */
+
+const tabGestao = document.getElementById("tabGestao");
+const tabSorteio = document.getElementById("tabSorteio");
+const reelFrame = document.getElementById("reelFrame");
+const reelStrip = document.getElementById("reelStrip");
+const countdownEl = document.getElementById("countdown");
+const btnSortear = document.getElementById("btnSortear");
+const btnSom = document.getElementById("btnSom");
+const poolToggle = document.getElementById("poolToggle");
+const poolNote = document.getElementById("poolNote");
+const drawSub = document.getElementById("drawSub");
+const winnerCard = document.getElementById("winnerCard");
+const winnerNumber = document.getElementById("winnerNumber");
+const winnerName = document.getElementById("winnerName");
+const winnerContact = document.getElementById("winnerContact");
+const histSection = document.getElementById("histSection");
+const histWrap = document.getElementById("histWrap");
+const confettiCanvas = document.getElementById("confettiCanvas");
+
+const ITEM_H = 62;          // altura de cada número na bobina (igual ao CSS)
+const SPIN_MS = 6200;       // duração do giro
+// deslocamento que deixa um item centralizado na janela do marcador
+const centrar = (indice) =>
+  (reelFrame.clientHeight - ITEM_H) / 2 - indice * ITEM_H;
+let poolModo = "vendidos";
+let sorteando = false;
+let somLigado = true;
+let historico = [];
+
+// ---------- Abas ----------
+document.querySelector(".tabbar-inner").addEventListener("click", (e) => {
+  const btn = e.target.closest(".tab-btn");
+  if (!btn) return;
+  const alvo = btn.dataset.tab;
+  document.querySelectorAll(".tab-btn").forEach((b) =>
+    b.classList.toggle("is-active", b.dataset.tab === alvo)
+  );
+  tabGestao.style.display = alvo === "gestao" ? "block" : "none";
+  tabSorteio.style.display = alvo === "sorteio" ? "block" : "none";
+});
+
+// ---------- Participantes ----------
+// Monta a lista de bilhetes elegíveis: um item por número.
+function montarPool() {
+  const itens = [];
+  const push = (origem, d) => {
+    (d.numeros || []).forEach((n) =>
+      itens.push({
+        numero: n,
+        nome: d.nome || "",
+        email: d.email || "",
+        celular: d.celular || "",
+        origem,
+      })
+    );
+  };
+  vendasDocs.forEach((d) => push("vendido", d));
+  if (poolModo === "todos") pendentesDocs.forEach((d) => push("pendente", d));
+  return itens.sort((a, b) => a.numero - b.numero);
+}
+
+function atualizarPool() {
+  if (!poolNote) return;
+  const itens = montarPool();
+  const pessoas = new Set(itens.map((i) => i.email || i.nome)).size;
+
+  if (itens.length === 0) {
+    drawSub.textContent = poolModo === "vendidos"
+      ? "Nenhum número vendido ainda — aprove as solicitações ou inclua os pendentes."
+      : "Nenhum número reservado ainda.";
+    poolNote.innerHTML = "";
+    btnSortear.disabled = true;
+    desenharBobinaParada([]);
+    return;
+  }
+
+  drawSub.textContent = "Quando estiver tudo pronto, aperte Sortear.";
+  poolNote.innerHTML =
+    "<strong>" + itens.length + "</strong> número(s) concorrendo · <strong>" +
+    pessoas + "</strong> participante(s)" +
+    (poolModo === "todos" ? " · inclui pendentes de pagamento" : "");
+  btnSortear.disabled = sorteando;
+  if (!sorteando) desenharBobinaParada(itens);
+}
+
+poolToggle.addEventListener("click", (e) => {
+  const btn = e.target.closest(".view-btn");
+  if (!btn || sorteando) return;
+  poolModo = btn.dataset.pool;
+  poolToggle.querySelectorAll(".view-btn").forEach((b) =>
+    b.classList.toggle("is-active", b.dataset.pool === poolModo)
+  );
+  atualizarPool();
+});
+
+// ---------- Bobina ----------
+function desenharBobinaParada(itens) {
+  reelFrame.classList.add("is-idle");
+  const amostra = itens.length
+    ? [...itens].sort(() => Math.random() - 0.5).slice(0, 5)
+    : [{ numero: 0 }, { numero: 0 }, { numero: 0 }];
+  reelStrip.style.transition = "none";
+  reelStrip.style.transform = "translateY(" + centrar(1) + "px)";
+  reelStrip.innerHTML = amostra
+    .map((i) => '<div class="reel-item">' + (i.numero ? pad(i.numero) : "–––") + "</div>")
+    .join("");
+}
+
+// Sorteio justo: índice aleatório via crypto.
+function sortearIndice(tamanho) {
+  const buf = new Uint32Array(1);
+  const limite = Math.floor(0xFFFFFFFF / tamanho) * tamanho;
+  let v;
+  do {
+    crypto.getRandomValues(buf);
+    v = buf[0];
+  } while (v >= limite);
+  return v % tamanho;
+}
+
+// ---------- Som ----------
+let audioCtx = null;
+function tique(freq = 760, dur = 0.035, vol = 0.05) {
+  if (!somLigado) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = freq;
+    g.gain.value = vol;
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    const t = audioCtx.currentTime;
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.start(t);
+    osc.stop(t + dur);
+  } catch (err) { /* som é opcional */ }
+}
+
+function fanfarra() {
+  if (!somLigado) return;
+  [523, 659, 784, 1047].forEach((f, i) =>
+    setTimeout(() => tique(f, 0.22, 0.09), i * 150)
+  );
+}
+
+btnSom.addEventListener("click", () => {
+  somLigado = !somLigado;
+  btnSom.textContent = "Som: " + (somLigado ? "ligado" : "desligado");
+  if (somLigado) tique();
+});
+
+// ---------- Confete ----------
+function soltarConfete() {
+  const ctx = confettiCanvas.getContext("2d");
+  const W = (confettiCanvas.width = window.innerWidth);
+  const H = (confettiCanvas.height = window.innerHeight);
+  confettiCanvas.style.display = "block";
+  const cores = ["#63C2E8", "#8FD6F0", "#3D87DA", "#1E6AC4", "#FFFFFF", "#C2DAF7"];
+  const pecas = Array.from({ length: 160 }, () => ({
+    x: Math.random() * W,
+    y: -20 - Math.random() * H * 0.5,
+    w: 6 + Math.random() * 7,
+    h: 9 + Math.random() * 9,
+    cor: cores[Math.floor(Math.random() * cores.length)],
+    vy: 2.2 + Math.random() * 3.4,
+    vx: -1.4 + Math.random() * 2.8,
+    rot: Math.random() * Math.PI,
+    vrot: -0.12 + Math.random() * 0.24,
+  }));
+  const inicio = performance.now();
+  (function frame(now) {
+    const t = now - inicio;
+    ctx.clearRect(0, 0, W, H);
+    pecas.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vrot;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.cor;
+      ctx.globalAlpha = t > 4200 ? Math.max(0, 1 - (t - 4200) / 1600) : 1;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (t < 5800) requestAnimationFrame(frame);
+    else {
+      ctx.clearRect(0, 0, W, H);
+      confettiCanvas.style.display = "none";
+    }
+  })(inicio);
+}
+
+// ---------- O sorteio ----------
+btnSortear.addEventListener("click", async () => {
+  if (sorteando) return;
+  const itens = montarPool();
+  if (itens.length === 0) return;
+
+  sorteando = true;
+  btnSortear.disabled = true;
+  btnSortear.textContent = "Sorteando...";
+  winnerCard.classList.remove("is-visible");
+  reelFrame.classList.remove("is-idle");
+
+  // destrava o áudio no gesto do usuário
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") await audioCtx.resume();
+  } catch (err) { /* segue sem som */ }
+
+  // 3 · 2 · 1
+  countdownEl.style.display = "flex";
+  for (const n of [3, 2, 1]) {
+    countdownEl.textContent = n;
+    countdownEl.classList.remove("pop");
+    void countdownEl.offsetWidth;
+    countdownEl.classList.add("pop");
+    tique(380 + (3 - n) * 120, 0.14, 0.07);
+    await new Promise((r) => setTimeout(r, 850));
+  }
+  countdownEl.style.display = "none";
+
+  // escolhe o vencedor
+  const vencedor = itens[sortearIndice(itens.length)];
+
+  // monta a fita: números aleatórios do pool e o vencedor na posição final
+  const ENCHIMENTO = 44;
+  const fita = Array.from(
+    { length: ENCHIMENTO },
+    () => itens[Math.floor(Math.random() * itens.length)].numero
+  );
+  fita.push(vencedor.numero);
+  fita.push(itens[Math.floor(Math.random() * itens.length)].numero);
+
+  reelStrip.style.transition = "none";
+  reelStrip.style.transform = "translateY(" + centrar(0) + "px)";
+  reelStrip.innerHTML = fita
+    .map((n) => '<div class="reel-item">' + pad(n) + "</div>")
+    .join("");
+
+  // o vencedor está no índice ENCHIMENTO da fita; para na janela central
+  const destino = centrar(ENCHIMENTO);
+  void reelStrip.offsetWidth;
+  reelStrip.style.transition = "transform " + SPIN_MS + "ms cubic-bezier(.12,.72,.16,1)";
+  reelStrip.style.transform = "translateY(" + destino + "px)";
+
+  // tiques acompanhando a desaceleração
+  let passo = 55;
+  let decorrido = 0;
+  (function tiquetaque() {
+    if (decorrido >= SPIN_MS - 120) return;
+    tique(620 + Math.random() * 180, 0.03, 0.045);
+    decorrido += passo;
+    passo *= 1.085;
+    setTimeout(tiquetaque, passo);
+  })();
+
+  await new Promise((r) => setTimeout(r, SPIN_MS + 350));
+
+  // revela
+  winnerNumber.textContent = pad(vencedor.numero);
+  winnerName.textContent = vencedor.nome;
+  winnerContact.innerHTML =
+    escapeHtml(vencedor.email) + "<br/>" + escapeHtml(vencedor.celular) +
+    (vencedor.origem === "pendente"
+      ? '<br/><span style="color:var(--cyan-300)">⚠ pagamento ainda pendente de aprovação</span>'
+      : "");
+  winnerCard.classList.add("is-visible");
+  fanfarra();
+  soltarConfete();
+
+  historico.unshift({
+    numero: vencedor.numero,
+    nome: vencedor.nome,
+    hora: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+    origem: vencedor.origem,
+  });
+  desenharHistorico();
+
+  sorteando = false;
+  btnSortear.disabled = false;
+  btnSortear.textContent = "Sortear novamente";
+});
+
+function desenharHistorico() {
+  if (historico.length === 0) return;
+  histSection.style.display = "block";
+  histWrap.innerHTML =
+    '<div class="table-scroll"><table class="sales-table"><thead><tr>' +
+    "<th>Ordem</th><th>Nº</th><th>Ganhador</th><th>Hora</th></tr></thead><tbody>" +
+    historico
+      .map((h, i) =>
+        "<tr><td>" + (historico.length - i) + "º</td>" +
+        '<td><span class="hist-num">' + pad(h.numero) + "</span></td>" +
+        "<td>" + escapeHtml(h.nome) +
+        (h.origem === "pendente" ? ' <span style="color:var(--blue-500)">(pendente)</span>' : "") +
+        "</td><td>" + h.hora + "</td></tr>"
+      )
+      .join("") +
+    "</tbody></table></div>";
+}
+
+desenharBobinaParada([]);
 
 </script>
 </body>
