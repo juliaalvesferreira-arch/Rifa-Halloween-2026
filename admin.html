@@ -1078,6 +1078,48 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
   color:#fff;text-decoration:none;
 }
 
+/* Arte dos vencedores */
+.art-panel{
+  background:var(--white);border-radius:var(--radius-m);
+  padding:22px;box-shadow:var(--shadow-card);
+  border-left:3px solid var(--blue-600);margin-bottom:24px;
+}
+.art-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.art-row{
+  display:grid;grid-template-columns:auto 1fr 1.1fr auto;
+  gap:10px;align-items:center;
+  background:var(--blue-25);border:1.5px solid var(--blue-100);
+  border-radius:var(--radius-s);padding:10px 12px;
+}
+.art-row .pos{
+  font-family:var(--font-display);font-weight:700;
+  color:var(--blue-700);font-size:13px;min-width:26px;
+}
+.art-row .quem{font-size:13.5px;color:var(--blue-900);}
+.art-row .quem b{font-family:var(--font-display);}
+.art-row .quem span{color:var(--ink-600);font-size:12.5px;}
+.art-row select{
+  width:100%;padding:9px 10px;border:1.5px solid var(--blue-200);
+  border-radius:var(--radius-s);font-family:var(--font-body);
+  font-size:13.5px;background:var(--white);color:var(--blue-900);
+}
+.art-row select:focus{outline:2px solid var(--blue-500);outline-offset:1px;}
+.art-row .rm{
+  background:transparent;border:none;cursor:pointer;
+  color:var(--ink-400);font-size:17px;line-height:1;padding:4px 6px;
+}
+.art-row .rm:hover{color:var(--alert,#B5453A);}
+
+.art-preview-wrap{
+  background:var(--blue-25);border-radius:var(--radius-m);
+  padding:18px;text-align:center;overflow-x:auto;
+}
+#artCanvas{
+  max-width:100%;height:auto;border-radius:10px;
+  box-shadow:var(--shadow-card);display:inline-block;
+}
+.art-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+
 .redraw-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
 .redraw-opt{
   text-align:left;background:var(--blue-25);
@@ -1311,6 +1353,29 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
         </div>
         <div id="histWrap"></div>
       </div>
+
+      <div class="admin-section art-panel" id="artSection" style="display:none;">
+        <div class="section-head">
+          <h2>Arte do resultado</h2>
+          <div class="section-tools">
+            <button class="btn btn-outline btn-sm" id="btnArtAtualizar" type="button">Recarregar ganhadores</button>
+          </div>
+        </div>
+        <p class="hint" style="margin:-8px 0 14px;font-size:12.5px;color:var(--ink-600);">
+          Confira o prêmio de cada ganhador antes de baixar — dá para trocar na lista abaixo.
+        </p>
+
+        <div class="art-rows" id="artRows"></div>
+
+        <div class="art-preview-wrap">
+          <canvas id="artCanvas" width="1080" height="1350"></canvas>
+        </div>
+
+        <div class="art-actions">
+          <button class="btn btn-solid-blue" id="btnBaixarArte" type="button">Baixar PNG</button>
+          <button class="btn btn-outline" id="btnArtFormato" type="button">Formato: story (9:16)</button>
+        </div>
+      </div>
     </div>
 
     <div class="container" id="tabGestao">
@@ -1344,6 +1409,7 @@ table.sales-table tbody tr:hover{background:var(--blue-25);}
               <input type="text" id="vendasSearch" placeholder="Nome, e-mail, nº..." />
             </div>
             <button class="btn btn-outline btn-sm" id="btnExportar" type="button">Exportar CSV</button>
+            <button class="btn btn-outline btn-sm" id="btnExportarEmails" type="button">Lista de e-mails</button>
           </div>
         </div>
         <div id="vendasWrap"><p class="empty-state">Carregando...</p></div>
@@ -1428,6 +1494,7 @@ const vendasWrap = document.getElementById("vendasWrap");
 const viewToggle = document.getElementById("viewToggle");
 const vendasSearch = document.getElementById("vendasSearch");
 const btnExportar = document.getElementById("btnExportar");
+const btnExportarEmails = document.getElementById("btnExportarEmails");
 
 let vendasDocs = [];
 let pendentesDocs = [];
@@ -1761,6 +1828,67 @@ btnExportar.addEventListener("click", () => {
   mostrarToast(`${linhas.length} número(s) exportado(s).`);
 });
 
+// ---------- Lista de e-mails (uma linha por pessoa) ----------
+function baixarCsv(nomeArquivo, cabecalho, linhas) {
+  const esc = (v) => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`;
+  const csv = [
+    cabecalho.map(esc).join(";"),
+    ...linhas.map((l) => l.map(esc).join(";")),
+  ].join("\r\n");
+  // BOM para o Excel reconhecer os acentos
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nomeArquivo;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+btnExportarEmails.addEventListener("click", () => {
+  // agrupa por pessoa: quem comprou vários números aparece uma vez só
+  const porPessoa = new Map();
+  vendasDocs.forEach((d) => {
+    const chave = (d.email || d.nome || "").trim().toLowerCase();
+    if (!chave) return;
+    if (!porPessoa.has(chave)) {
+      porPessoa.set(chave, {
+        nome: d.nome || "",
+        email: d.email || "",
+        celular: d.celular || "",
+        numeros: [],
+      });
+    }
+    porPessoa.get(chave).numeros.push(...(d.numeros || []));
+  });
+
+  if (porPessoa.size === 0) {
+    mostrarToast("Não há compradores para exportar.", true);
+    return;
+  }
+
+  const linhas = [...porPessoa.values()]
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"))
+    .map((p) => {
+      const nums = [...new Set(p.numeros)].sort((a, b) => a - b);
+      return [
+        p.nome,
+        p.email,
+        p.celular,
+        nums.map(pad).join(", "),
+        nums.length,
+        (nums.length * PRECO).toFixed(2).replace(".", ","),
+      ];
+    });
+
+  baixarCsv(
+    `rifa-emails-compradores-${new Date().toISOString().slice(0, 10)}.csv`,
+    ["Nome", "E-mail", "Celular", "Numeros", "Qtd numeros", "Valor total"],
+    linhas
+  );
+  mostrarToast(`${linhas.length} comprador(es) exportado(s).`);
+});
+
 async function decidirSolicitacao(id, data, aprovar, btnEl) {
   const botoes = btnEl.closest(".req-actions").querySelectorAll("button");
   botoes.forEach((b) => (b.disabled = true));
@@ -1978,6 +2106,7 @@ document.getElementById("btnRefazer").addEventListener("click", () => {
   winnerCard.classList.remove("is-visible");
   desenharPremios();
   desenharHistorico();
+  carregarArtLinhas();
   atualizarPool();
 });
 
@@ -2090,6 +2219,7 @@ modeSwitch.addEventListener("click", (e) => {
   repetindo = null;
   desenharPremios();
   desenharHistorico();
+  carregarArtLinhas();
   atualizarPool();
 });
 
@@ -2105,6 +2235,7 @@ btnLimparHist.addEventListener("click", () => {
   repetindo = null;
   desenharPremios();
   desenharHistorico();
+  carregarArtLinhas();
   atualizarPool();
   mostrarToast(modo === "teste" ? "Simulação limpa." : "Sorteio oficial zerado.");
 });
@@ -2312,6 +2443,7 @@ btnSortear.addEventListener("click", async () => {
     origem: vencedor.origem,
   });
   desenharHistorico();
+  carregarArtLinhas();
 
   sorteando = false;
   repetindo = null;   // a autorização de repetir vale só para esta rodada
@@ -2351,8 +2483,257 @@ function desenharHistorico() {
     "</tbody></table></div>";
 }
 
+/* =========================================================
+   ARTE DO RESULTADO
+   ========================================================= */
+
+const artSection = document.getElementById("artSection");
+const artRows = document.getElementById("artRows");
+const artCanvas = document.getElementById("artCanvas");
+const btnBaixarArte = document.getElementById("btnBaixarArte");
+const btnArtFormato = document.getElementById("btnArtFormato");
+const btnArtAtualizar = document.getElementById("btnArtAtualizar");
+
+// Linhas da arte — começam iguais ao histórico, mas são editáveis.
+let artLinhas = [];
+let artFormato = "story";   // "story" 1080x1350 · "quadrado" 1080x1080
+
+function carregarArtLinhas() {
+  artLinhas = [...historico[modo]].reverse().map((h) => ({
+    premio: h.premio || "",
+    numero: h.numero,
+    nome: h.nome,
+  }));
+  desenharArtRows();
+  desenharArte();
+}
+
+function desenharArtRows() {
+  if (artLinhas.length === 0) {
+    artSection.style.display = "none";
+    return;
+  }
+  artSection.style.display = "block";
+
+  // todos os prêmios possíveis + os que já estão em uso
+  const opcoes = [...new Set([...premios, ...artLinhas.map((l) => l.premio)])]
+    .filter(Boolean);
+
+  artRows.innerHTML = artLinhas
+    .map((l, i) => {
+      const sel = opcoes
+        .map(
+          (p) =>
+            '<option value="' + escapeHtml(p) + '"' +
+            (p === l.premio ? " selected" : "") + ">" + escapeHtml(p) + "</option>"
+        )
+        .join("");
+      return (
+        '<div class="art-row">' +
+        '<span class="pos">' + (i + 1) + "º</span>" +
+        '<span class="quem"><b>' + escapeHtml(l.nome) + "</b><br/>" +
+        "<span>nº " + pad(l.numero) + "</span></span>" +
+        '<select data-i="' + i + '">' + sel + "</select>" +
+        '<button class="rm" data-rm="' + i + '" title="Remover da arte">×</button>' +
+        "</div>"
+      );
+    })
+    .join("");
+}
+
+artRows.addEventListener("change", (e) => {
+  const sel = e.target.closest("select");
+  if (!sel) return;
+  artLinhas[+sel.dataset.i].premio = sel.value;
+  desenharArte();
+});
+
+artRows.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-rm]");
+  if (!btn) return;
+  artLinhas.splice(+btn.dataset.rm, 1);
+  desenharArtRows();
+  desenharArte();
+});
+
+btnArtAtualizar.addEventListener("click", () => {
+  carregarArtLinhas();
+  mostrarToast("Ganhadores recarregados do sorteio.");
+});
+
+btnArtFormato.addEventListener("click", () => {
+  artFormato = artFormato === "story" ? "quadrado" : "story";
+  btnArtFormato.textContent =
+    "Formato: " + (artFormato === "story" ? "story (9:16)" : "quadrado (1:1)");
+  desenharArte();
+});
+
+// ---------- Desenho ----------
+function arredondado(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+// Encurta o texto com reticências se não couber na largura
+function ajustar(ctx, texto, maxLargura) {
+  if (ctx.measureText(texto).width <= maxLargura) return texto;
+  let t = texto;
+  while (t.length > 1 && ctx.measureText(t + "…").width > maxLargura) {
+    t = t.slice(0, -1);
+  }
+  return t + "…";
+}
+
+function textoEsp(ctx, texto, x, y, esp) {
+  const chars = [...String(texto)];
+  let cx = x;
+  chars.forEach((c) => { ctx.fillText(c, cx, y); cx += ctx.measureText(c).width + esp; });
+}
+
+function grao(ctx, W, H, qtd, alpha) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = "#FFFFFF";
+  for (let i = 0; i < qtd; i++) ctx.fillRect(Math.random() * W, Math.random() * H, 1.4, 1.4);
+  ctx.restore();
+}
+
+function desenharArte() {
+  const W = 1080;
+  const H = artFormato === "story" ? 1350 : 1080;
+  artCanvas.width = W; artCanvas.height = H;
+  const ctx = artCanvas.getContext("2d");
+
+  // ---------- Fundo ----------
+  ctx.fillStyle = "#040D1C";
+  ctx.fillRect(0, 0, W, H);
+
+  let gl = ctx.createRadialGradient(W * 0.26, H * 0.04, 0, W * 0.26, H * 0.04, W * 1.05);
+  gl.addColorStop(0, "rgba(46,134,235,0.55)");
+  gl.addColorStop(0.45, "rgba(20,82,155,0.22)");
+  gl.addColorStop(1, "rgba(4,13,28,0)");
+  ctx.fillStyle = gl;
+  ctx.fillRect(0, 0, W, H);
+
+  gl = ctx.createRadialGradient(W * 0.92, H, 0, W * 0.92, H, W * 0.8);
+  gl.addColorStop(0, "rgba(99,194,232,0.3)");
+  gl.addColorStop(1, "rgba(99,194,232,0)");
+  ctx.fillStyle = gl;
+  ctx.fillRect(0, 0, W, H);
+
+  grao(ctx, W, H, 2600, 0.035);
+
+  const n = artLinhas.length;
+  const mx = 84;
+  const compacto = H < 1200 && n > 6;
+  const k = compacto ? 0.8 : 1;
+
+  // ---------- Cabeçalho ----------
+  let y = Math.round(126 * k) + 14;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#63C2E8";
+  ctx.font = "600 " + Math.round(22 * k) + "px Poppins, Inter, sans-serif";
+  textoEsp(ctx, "RIFA AZUL LOGÍSTICA", mx, y, 4.5 * k);
+
+  y += Math.round(96 * k);
+  const tg = ctx.createLinearGradient(mx, y - 80 * k, mx + 620, y);
+  tg.addColorStop(0, "#FFFFFF");
+  tg.addColorStop(1, "#9FD8F2");
+  ctx.fillStyle = tg;
+  ctx.font = "800 " + Math.round(94 * k) + "px Poppins, Inter, sans-serif";
+  const tituloW = ctx.measureText("GANHADORES").width;
+  ctx.fillText("GANHADORES", mx, y);
+
+  const ug = ctx.createLinearGradient(mx, 0, mx + Math.min(tituloW, W - mx * 2), 0);
+  ug.addColorStop(0, "#63C2E8");
+  ug.addColorStop(1, "rgba(99,194,232,0)");
+  ctx.fillStyle = ug;
+  ctx.fillRect(mx, y + Math.round(16 * k), Math.min(tituloW, W - mx * 2), 5);
+
+  y += Math.round(62 * k);
+  ctx.fillStyle = "rgba(190,220,251,0.75)";
+  ctx.font = "500 " + Math.round(25 * k) + "px Inter, sans-serif";
+  ctx.fillText("Halloween 2026" + (n ? "   ·   " + n + (n > 1 ? " prêmios" : " prêmio") : ""), mx, y);
+
+  if (n === 0) {
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,255,255,0.45)";
+    ctx.font = "500 30px Inter, sans-serif";
+    ctx.fillText("Nenhum ganhador sorteado ainda", W / 2, H / 2);
+    return;
+  }
+
+  // ---------- Lista ----------
+  const topo = y + Math.round(56 * k);
+  const rodapeY = H - 62;
+  const disp = rodapeY - 46 - topo;
+  const rowH = Math.min(118, disp / n);
+  const s = Math.max(0.62, Math.min(1, rowH / 108));
+
+  const xNum = mx;
+  const xTxt = mx + Math.round(118 * s);
+  const maxT = W - mx - xTxt;
+
+  artLinhas.forEach((l, i) => {
+    const t = topo + i * rowH;
+    const meio = t + rowH / 2;
+
+    // número do bilhete, discreto
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(99,194,232,0.3)";
+    ctx.font = "800 " + Math.round(46 * s) + "px Poppins, Inter, sans-serif";
+    ctx.textBaseline = "middle";
+    ctx.fillText(pad(l.numero), xNum, meio + 1);
+    ctx.textBaseline = "alphabetic";
+
+    ctx.fillStyle = "#63C2E8";
+    ctx.font = "600 " + Math.round(18 * s) + "px Poppins, Inter, sans-serif";
+    textoEsp(ctx, (l.premio || "—").toUpperCase(), xTxt, meio - Math.round(13 * s), 2.6 * s);
+
+    ctx.fillStyle = "#FFFFFF";
+    ctx.font = "700 " + Math.round(38 * s) + "px Poppins, Inter, sans-serif";
+    ctx.fillText(ajustar(ctx, l.nome || "—", maxT), xTxt, meio + Math.round(28 * s));
+
+    if (i < n - 1) {
+      const lg = ctx.createLinearGradient(mx, 0, W - mx, 0);
+      lg.addColorStop(0, "rgba(255,255,255,0.16)");
+      lg.addColorStop(1, "rgba(255,255,255,0.02)");
+      ctx.fillStyle = lg;
+      ctx.fillRect(mx, Math.round(t + rowH) - 1, W - mx * 2, 1);
+    }
+  });
+
+  // ---------- Rodapé ----------
+  ctx.textAlign = "left";
+  ctx.fillStyle = "rgba(159,196,232,0.7)";
+  ctx.font = "500 " + Math.round(23 * k) + "px Inter, sans-serif";
+  ctx.fillText("Obrigada a todos que participaram!", mx, rodapeY);
+
+  ctx.fillStyle = "#63C2E8";
+  ctx.beginPath();
+  ctx.arc(W - mx, rodapeY - 8, 6, 0, Math.PI * 2);
+  ctx.fill();
+}
+btnBaixarArte.addEventListener("click", () => {
+  if (artLinhas.length === 0) {
+    mostrarToast("Não há ganhadores para gerar a arte.", true);
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = artCanvas.toDataURL("image/png");
+  a.download = "rifa-ganhadores-" + new Date().toISOString().slice(0, 10) + ".png";
+  a.click();
+  mostrarToast("Arte baixada em PNG.");
+});
+
 desenharPremios();
 desenharBobinaParada([]);
+carregarArtLinhas();
 
 </script>
 </body>
